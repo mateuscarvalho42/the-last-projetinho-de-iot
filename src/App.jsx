@@ -4,38 +4,52 @@ import "./index.css";
 import carregandoGif from "./assets/carregando.gif"; 
 
 function App() {
-  const [formData, setFormData] = useState({
-    name: "",
-    age: "",
-    sex: "",
-    academy: "",
-    sleep: "",
-    water: "",
-    smoke: "",
-  });
+  const [respostas, setRespostas] = useState({
+    nome: "",
+    idade: "",
+    genero: "",
+    atividade_fisica: {
+            faz: "",
+            vezMes: 0,
+            tipo: ""
+        },
+    horasSono: 0,
+    fuma: "",
+    bebeAlcool: "",
+    medicoAnual: ""
+  })
 
   const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-      // await axios.post("http://backend.com/api/form", formData);
-
-      alert("Formulário enviado com sucesso!");
-    } catch (error) {
-      console.error("Erro ao enviar:", error);
-      alert("Ocorreu um erro ao enviar o formulário.");
-    } finally {
-      setIsLoading(false);
+    const { name, value } = e.target;
+    
+    if(name.startsWith("fisica_")){
+      setRespostas((prev) => ({
+        ...prev,
+        atividade_fisica:{
+          ...prev.atividade_fisica,
+          [name.split("_")[1]]: value,
+        }
+      }))
+      return;
     }
-  };
+    setRespostas((prev) => ({
+      ...prev,
+      [name]: value
+    }))
+    
+  }
+
+  const submitInfo = async () => {
+    try {
+      const response = await axios.post("http://127.0.0.1:5000", respostas);
+      console.log("resposta do servidor", response.data)
+    } catch (error) {
+      console.log(error)
+    }
+    console.log(respostas)
+  }
 
   return (
     <>
@@ -48,14 +62,14 @@ function App() {
           <img src={carregandoGif} alt="Carregando..." />
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="formulario">
+        <form onSubmit={submitInfo} className="formulario">
           <section className="infoPessoal">
             <div>
-              <label htmlFor="name">Seu apelido: </label>
+              <label htmlFor="name">Qual seu Nome: </label>
               <input
                 type="text"
-                name="name"
-                value={formData.name}
+                name="nome"
+                value={respostas.nome}
                 onChange={handleChange}
               />
             </div>
@@ -66,8 +80,8 @@ function App() {
               <label htmlFor="age">Qual a sua idade? </label>
               <input
                 type="text"
-                name="age"
-                value={formData.age}
+                name="idade"
+                value={respostas.idade}
                 onChange={handleChange}
               />
             </div>
@@ -75,17 +89,15 @@ function App() {
 
           <section>
             <div>
-              <label htmlFor="sex">Qual sua sexualidade? </label>
+              <label htmlFor="sex">Qual seu Genero? </label>
               <select
-                name="sex"
-                value={formData.sex}
+                name="genero"
+                value={respostas.genero}
                 onChange={handleChange}
               >
                 <option value=""></option>
-                <option value="Hetero">Hetero</option>
-                <option value="Gay">Gay</option>
-                <option value="Bi">Bissexual</option>
-                <option value="Outro">Outro</option>
+                <option value="Masculino">Masculino</option>
+                <option value="Feminino">Feminino</option>
                 <option value="Prefiro não dizer">Prefiro não dizer</option>
               </select>
             </div>
@@ -93,39 +105,39 @@ function App() {
 
           <section>
             <div>
-              <label htmlFor="academy">
+              <label htmlFor="fisica_faz">
                 Você costuma fazer exercícios físicos?{" "}
               </label>
               <input
                 type="text"
-                name="academy"
-                value={formData.academy}
+                name="fisica_faz"
+                value={respostas.atividade_fisica.faz}
                 onChange={handleChange}
               />
             </div>
           </section>
-
           <section>
             <div>
-              <label htmlFor="sleep">Quantas horas você dorme por noite? </label>
+              <label htmlFor="fisica_vezMes">
+                Quantas vezes por mês?{" "}
+              </label>
               <input
-                type="text"
-                name="sleep"
-                value={formData.sleep}
+                type="number"
+                name="fisica_vezMes"
+                value={respostas.atividade_fisica.vezMes}
                 onChange={handleChange}
               />
             </div>
           </section>
-
           <section>
             <div>
-              <label htmlFor="water">
-                Você bebe água o suficiente diariamente?
+              <label htmlFor="fisica_tipo">
+                Que tipo de atividade fisica?{" "}
               </label>
               <input
                 type="text"
-                name="water"
-                value={formData.water}
+                name="fisica_tipo"
+                value={respostas.atividade_fisica.tipo}
                 onChange={handleChange}
               />
             </div>
@@ -133,18 +145,58 @@ function App() {
 
           <section>
             <div>
-              <label htmlFor="smoke">
-                Você costuma fumar ou ingerir álcool?
-              </label>
+              <label htmlFor="horasSono">Quantas horas você dorme por noite? </label>
               <input
-                type="text"
-                name="smoke"
-                value={formData.smoke}
+                type="number"
+                name="horasSono"
+                value={respostas.horasSono}
                 onChange={handleChange}
               />
             </div>
           </section>
 
+
+          <section>
+            <div>
+              <label htmlFor="fuma">
+                Você costuma fumar?
+              </label>
+              <input
+                type="text"
+                name="fuma"
+                value={respostas.fuma}
+                onChange={handleChange}
+              />
+            </div>
+          </section>
+
+          <section>
+            <div>
+              <label htmlFor="bebeAlcool">
+                Você costuma ingerir álcool?
+              </label>
+              <input
+                type="text"
+                name="bebeAlcool"
+                value={respostas.bebeAlcool}
+                onChange={handleChange}
+              />
+            </div>
+          </section>
+
+          <section>
+            <div>
+              <label htmlFor="medicoAnual">
+                Você vai ao medico frequentemente?
+              </label>
+              <input
+                type="text"
+                name="medicoAnual"
+                value={respostas.medicoAnual}
+                onChange={handleChange}
+              />
+            </div>
+          </section>
           <button type="submit">ENVIAR</button>
         </form>
       )}
