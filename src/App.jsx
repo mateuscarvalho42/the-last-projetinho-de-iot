@@ -19,7 +19,7 @@ function App() {
     medicoAnual: ""
   })
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [status, setStatus] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -41,23 +41,50 @@ function App() {
     
   }
 
-  const submitInfo = async () => {
+  const submitInfo = async (e) => {
+    e.preventDefault();
+    setStatus(true);
     try {
-      const response = await axios.post("http://127.0.0.1:5000", respostas);
-      console.log("resposta do servidor", response.data)
+      const res = await axios.post(
+        "http://127.0.0.1:5000",
+        respostas,
+        { responseType: "blob" }
+      );
+  
+      console.log("PDF recebido com sucesso!");
+  
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "rotina.pdf";
+      a.click();
+      setRespostas({
+        nome: "",
+        idade: "",
+        genero: "",
+        atividade_fisica: {
+                faz: "",
+                vezMes: 0,
+                tipo: ""
+            },
+        horasSono: 0,
+        fuma: "",
+        bebeAlcool: "",
+        medicoAnual: ""
+      })
+      setStatus(false);
     } catch (error) {
-      console.log(error)
+      console.log("Erro ao receber PDF:", error);
     }
-    console.log(respostas)
-  }
+  };
 
   return (
     <>
       <nav className="navbar">
-        <h1>aq no baile do egito, o mano vai te devorar</h1>
+        <h1>Formulário rotina mais saúdavel com o GEPETO</h1>
       </nav>
 
-      {isLoading ? (
+      {status ? (
         <div className="loading-container">
           <img src={carregandoGif} alt="Carregando..." />
         </div>

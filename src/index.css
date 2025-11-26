@@ -97,7 +97,7 @@ button {
 button:hover {
   background-color: #005fe0;
   box-shadow: 0 0 10px rgba(0, 119, 255, 0.25);
-  transform: translateY(5px);
+  padding: 15px;
 }
 
 button:active {
